@@ -9,23 +9,6 @@ export const invocationConfig: IntegrationSpecConfig<IntegrationConfig> = {
   integrationSteps: [
     {
       /**
-       * ENDPOINT: GET https://snyk.io/api/v1/org/{orgId}/settings
-       * PATTERN: Singleton
-       */
-      id: 'fetch-account',
-      name: 'Fetch Account',
-      entities: [
-        {
-          resourceName: 'Snyk Account',
-          _type: 'snyk_account',
-          _class: ['Service', 'Account'],
-        },
-      ],
-      relationships: [],
-      implemented: true,
-    },
-    {
-      /**
        * ENDPOINT: GET https://snyk.io/api/v1/org/{orgId}/projects
        * PATTERN: Fetch Entities
        */
@@ -94,6 +77,92 @@ export const invocationConfig: IntegrationSpecConfig<IntegrationConfig> = {
       ],
       dependsOn: ['fetch-projects'],
       implemented: false,
+    },
+    {
+      /**
+       * ENDPOINT: POST https://snyk.io/api/v1/org/{orgId}/project/{projectId}/aggregated-issues
+       * PATTERN: Fetch Child Entities
+       */
+      id: 'fetch-group',
+      name: 'Fetch Group',
+      entities: [
+        {
+          resourceName: 'Snyk Group',
+          _type: 'snyk_group',
+          _class: ['Group'],
+        },
+      ],
+      relationships: [],
+      implemented: true,
+    },
+    {
+      /**
+       * ENDPOINT: POST https://snyk.io/api/v1/org/{orgId}/project/{projectId}/aggregated-issues
+       * PATTERN: Fetch Child Entities
+       */
+      id: 'fetch-organizations',
+      name: 'Fetch Organizations',
+      entities: [
+        {
+          resourceName: 'Snyk Organization',
+          _type: 'snyk_organization',
+          _class: ['Organization'],
+        },
+      ],
+      relationships: [
+        {
+          _class: RelationshipClass.HAS,
+          _type: 'snyk_group_has_organization',
+          sourceType: 'snyk_group',
+          targetType: 'snyk_organization',
+        },
+      ],
+      dependsOn: ['fetch-group'],
+      implemented: true,
+    },
+    {
+      /**
+       * ENDPOINT: POST https://snyk.io/api/v1/org/{orgId}/project/{projectId}/aggregated-issues
+       * PATTERN: Fetch Child Entities
+       */
+      id: 'fetch-roles',
+      name: 'Fetch Roles',
+      entities: [
+        {
+          resourceName: 'Snyk Role',
+          _type: 'snyk_role',
+          _class: ['AccessRole'],
+        },
+      ],
+      relationships: [
+        {
+          _class: RelationshipClass.HAS,
+          _type: 'snyk_group_has_role',
+          sourceType: 'snyk_group',
+          targetType: 'snyk_role',
+        },
+      ],
+      dependsOn: ['fetch-group'],
+      implemented: true,
+    },
+    {
+      /**
+       * ENDPOINT: n/a
+       * PATTERN: Build Child Relationships
+       */
+      id: 'build-user-role-relationship',
+      name: 'Build User and Role Relationship',
+      entities: [],
+      relationships: [
+        {
+          _class: RelationshipClass.ASSIGNED,
+          _type: 'snyk_user_assigned_role',
+          sourceType: 'snyk_user',
+          targetType: 'snyk_role',
+        },
+      ],
+      dependsOn: ['fetch-roles', 'fetch-users'],
+      implemented: true,
     },
     {
       /**

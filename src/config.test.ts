@@ -64,6 +64,7 @@ describe('validateInvocation', () => {
           instanceConfig: {
             snykOrgId: (undefined as unknown) as string,
             snykApiKey: 'dummy-api-key',
+            snykGroupId: 'dummy-api-key',
           },
         }),
       );
@@ -81,6 +82,25 @@ describe('validateInvocation', () => {
           instanceConfig: {
             snykOrgId: 'dummy-org-id',
             snykApiKey: (undefined as unknown) as string,
+            snykGroupId: 'dummy-org-id',
+          },
+        }),
+      );
+    } catch (err) {
+      expect(err instanceof IntegrationValidationError).toEqual(true);
+    }
+  });
+
+  test('should throw if `snykGroupId` missing from integration config', async () => {
+    expect.assertions(1);
+
+    try {
+      await validateInvocation(
+        createMockExecutionContext<IntegrationConfig>({
+          instanceConfig: {
+            snykOrgId: 'dummy-org-id',
+            snykApiKey: 'dummy-api-key',
+            snykGroupId: (undefined as unknown) as string,
           },
         }),
       );

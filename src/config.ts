@@ -14,10 +14,14 @@ import {
 interface IntegrationConfig extends IntegrationInstanceConfig {
   snykOrgId: string;
   snykApiKey: string;
+  snykGroupId: string;
 }
 
 const instanceConfigFields: IntegrationInstanceConfigFieldMap<IntegrationConfig> = {
   snykOrgId: {
+    type: 'string',
+  },
+  snykGroupId: {
     type: 'string',
   },
   snykApiKey: {
@@ -31,9 +35,9 @@ export default async function validateInvocation(
 ) {
   const { config } = context.instance;
 
-  if (!config?.snykOrgId || !config?.snykApiKey) {
+  if (!config?.snykOrgId || !config?.snykApiKey || !config?.snykGroupId) {
     throw new IntegrationValidationError(
-      'Config requires all of {snykOrgId, snykApiKey}',
+      'Config requires all of {snykOrgId, snykApiKey, snykGroupId}',
     );
   }
 

@@ -7,7 +7,7 @@ import {
 } from '@jupiterone/integration-sdk-core';
 import { Entities, Relationships } from './constants';
 
-import { CVEEntity, CWEEntity } from './types';
+import { CVEEntity, CWEEntity, Group, Organization, Role } from './types';
 
 const CVE_URL_BASE = 'https://nvd.nist.gov/vuln/detail/';
 
@@ -24,6 +24,40 @@ export function createServiceEntity(orgId: string, orgName?: string): Entity {
         name: orgName,
         displayName: orgName || `snyk/${orgId}`,
         function: ['scanning'],
+      },
+    },
+  });
+}
+
+export function createGroupEntity(group: Group): Entity {
+  return createIntegrationEntity({
+    entityData: {
+      source: group,
+      assign: {
+        _key: `snyk_group:${group.id}`,
+        _type: Entities.GROUP._type,
+        _class: Entities.GROUP._class,
+        id: group.id,
+        name: group.name,
+        webLink: group.url,
+      },
+    },
+  });
+}
+
+export function createOrganizationEntity(org: Organization): Entity {
+  return createIntegrationEntity({
+    entityData: {
+      source: org,
+      assign: {
+        _key: `snyk_org:${org.id}`,
+        _type: Entities.ORGANIZATION._type,
+        _class: Entities.ORGANIZATION._class,
+        id: org.id,
+        name: org.name,
+        webLink: org.url,
+        displayName: org.slug,
+        createdOn: parseTimePropertyValue(org.created),
       },
     },
   });
@@ -99,6 +133,24 @@ export function createFindingEntity(vuln: any) {
   });
 }
 
+export function createRoleEntity(role: Role): Entity {
+  return createIntegrationEntity({
+    entityData: {
+      source: role,
+      assign: {
+        _key: `snyk_role:${role.name.split(' ')[1].toLowerCase()}`,
+        _type: Entities.ROLE._type,
+        _class: Entities.ROLE._class,
+        name: role.name,
+        description: role.description,
+        publicId: role.publicId,
+        createdOn: parseTimePropertyValue(role.created),
+        modified: parseTimePropertyValue(role.modified),
+      },
+    },
+  });
+}
+
 export function createCVEEntity(
   cve: string,
   cvssScore: number | string,
@@ -135,15 +187,15 @@ export function createCWEEntity(cwe: string): CWEEntity {
   };
 }
 
-export function createServiceFindingRelationship(
-  service: Entity,
+export function createOrganizationFindingRelationship(
+  organization: Entity,
   finding: Entity,
 ): Relationship {
   return {
     _class: 'IDENTIFIED',
-    _key: `${service._key}|identified|${finding._key}`,
-    _type: Relationships.SERVICE_IDENTIFIED_FINDING._type,
-    _fromEntityKey: service._key,
+    _key: `${organization._key}|identified|${finding._key}`,
+    _type: Relationships.ORGANIZATION_IDENTIFIED_FINDING._type,
+    _fromEntityKey: organization._key,
     _toEntityKey: finding._key,
     displayName: 'IDENTIFIED',
   };

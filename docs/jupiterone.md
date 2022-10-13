@@ -83,14 +83,16 @@ https://github.com/JupiterOne/sdk/blob/main/docs/integrations/development.md
 
 The following entities are created:
 
-| Resources    | Entity `_type` | Entity `_class`      |
-| ------------ | -------------- | -------------------- |
-| CVE          | `cve`          | `Vulnerability`      |
-| CWE          | `cwe`          | `Weakness`           |
-| Snyk Account | `snyk_account` | `Service`, `Account` |
-| Snyk Issue   | `snyk_finding` | `Finding`            |
-| Snyk Project | `snyk_project` | `Project`            |
-| Snyk User    | `snyk_user`    | `User`               |
+| Resources         | Entity `_type`      | Entity `_class` |
+| ----------------- | ------------------- | --------------- |
+| CVE               | `cve`               | `Vulnerability` |
+| CWE               | `cwe`               | `Weakness`      |
+| Snyk Group        | `snyk_group`        | `Group`         |
+| Snyk Issue        | `snyk_finding`      | `Finding`       |
+| Snyk Organization | `snyk_organization` | `Organization`  |
+| Snyk Project      | `snyk_project`      | `Project`       |
+| Snyk Role         | `snyk_role`         | `AccessRole`    |
+| Snyk User         | `snyk_user`         | `User`          |
 
 ### Relationships
 
@@ -98,12 +100,15 @@ The following relationships are created:
 
 | Source Entity `_type` | Relationship `_class` | Target Entity `_type` |
 | --------------------- | --------------------- | --------------------- |
-| `snyk_account`        | **HAS**               | `snyk_project`        |
-| `snyk_account`        | **HAS**               | `snyk_user`           |
 | `snyk_finding`        | **EXPLOITS**          | `cwe`                 |
 | `snyk_finding`        | **IS**                | `cve`                 |
+| `snyk_group`          | **HAS**               | `snyk_organization`   |
+| `snyk_group`          | **HAS**               | `snyk_role`           |
+| `snyk_organization`   | **HAS**               | `snyk_project`        |
+| `snyk_organization`   | **HAS**               | `snyk_user`           |
+| `snyk_organization`   | **IDENTIFIED**        | `snyk_finding`        |
 | `snyk_project`        | **HAS**               | `snyk_finding`        |
-| `snyk_account`        | **IDENTIFIED**        | `snyk_finding`        |
+| `snyk_user`           | **ASSIGNED**          | `snyk_role`           |
 
 ### Mapped Relationships
 

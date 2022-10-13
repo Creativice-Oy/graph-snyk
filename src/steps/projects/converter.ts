@@ -9,7 +9,7 @@ import {
 import { Entities, mappedRelationships } from '../../constants';
 import { isSupportedCodeRepoOrigin, parseSnykProjectName } from './codeRepo';
 
-export function createProjectEntity(project: any) {
+export function createProjectEntity(orgId: string, project: any) {
   const {
     repoOrganization,
     repoName,
@@ -21,7 +21,7 @@ export function createProjectEntity(project: any) {
 
   return createIntegrationEntity({
     entityData: {
-      source: project,
+      source: { ...project, orgId },
       assign: {
         _class: Entities.PROJECT._class,
         _type: Entities.PROJECT._type,

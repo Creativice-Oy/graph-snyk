@@ -1,5 +1,7 @@
 import {
   createDirectRelationship,
+  Entity,
+  getRawData,
   IntegrationStep,
   IntegrationStepExecutionContext,
   RelationshipClass,
@@ -14,17 +16,15 @@ import {
   createFindingEntity,
   createFindingVulnerabilityRelationship,
   createFindingWeaknessRelationship,
-  createServiceFindingRelationship,
+  createOrganizationFindingRelationship,
 } from '../converters';
-import { FindingEntity } from '../types';
-import { getAccountEntity } from '../util/entity';
+import { FindingEntity, Project } from '../types';
 
 async function fetchFindings({
   jobState,
   instance,
   logger,
 }: IntegrationStepExecutionContext<IntegrationConfig>) {
-  const serviceEntity = await getAccountEntity(jobState);
   const apiClient = new APIClient(logger, instance.config);
 
   let totalFindingsEncountered = 0;
@@ -37,9 +37,19 @@ async function fetchFindings({
     {
       _type: Entities.PROJECT._type,
     },
-    async (project) => {
-      const projectId = project.id as string | undefined;
-      const projectName = project.name as string | undefined;
+    async (projectEntity) => {
+      const projectId = projectEntity.id as string | undefined;
+      const projectName = projectEntity.name as string | undefined;
+
+      const project = getRawData<Project & { orgId: string }>(projectEntity);
+      if (!project) {
+        `Can not get raw data for entity ${projectEntity._key}`;
+        return;
+      }
+
+      const organizationEntity = (await jobState.findEntity(
+        `snyk_org:${project?.orgId}`,
+      )) as Entity;
 
       if (!projectId || !projectName) return;
       const [, packageName] = projectName.split(':');
@@ -78,13 +88,13 @@ async function fetchFindings({
         }
 
         await jobState.addRelationship(
-          createServiceFindingRelationship(serviceEntity, finding),
+          createOrganizationFindingRelationship(organizationEntity, finding),
         );
 
         await jobState.addEntity(finding);
 
         const projectHasFindingRelationship = createDirectRelationship({
-          from: project,
+          from: projectEntity,
           to: finding,
           _class: RelationshipClass.HAS,
         });
@@ -116,10 +126,10 @@ export const steps: IntegrationStep<IntegrationConfig>[] = [
     relationships: [
       Relationships.FINDING_IS_CVE,
       Relationships.FINDING_EXPLOITS_CWE,
-      Relationships.SERVICE_IDENTIFIED_FINDING,
+      Relationships.ORGANIZATION_IDENTIFIED_FINDING,
       Relationships.PROJECT_FINDING,
     ],
-    dependsOn: [StepIds.FETCH_ACCOUNT, StepIds.FETCH_PROJECTS],
+    dependsOn: [StepIds.FETCH_ORGANIZATIONS, StepIds.FETCH_PROJECTS],
     executionHandler: fetchFindings,
   },
 ];

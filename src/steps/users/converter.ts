@@ -1,7 +1,8 @@
 import { createIntegrationEntity } from '@jupiterone/integration-sdk-core';
 import { Entities } from '../../constants';
+import { User } from '../../types';
 
-export function createUserEntity(user: any) {
+export function createUserEntity(user: User) {
   return createIntegrationEntity({
     entityData: {
       source: user,
