@@ -104,6 +104,23 @@ export function getNumericSeverityFromIssueSeverity(
   return numericSeverity === undefined ? 0 : numericSeverity;
 }
 
+export function buildDescription({
+  overview,
+  remediation,
+  references,
+}: {
+  overview: string;
+  remediation?: string;
+  references?: string;
+}): string {
+  const description = `Overview ${overview
+    .split('\n\nAn attacker')
+    .join('## Impact An attacker')} ${
+    remediation ? `## Remediation ${remediation}` : ''
+  } ${references ? `## References ${references}` : ''}`;
+  return description;
+}
+
 export function createFindingEntity(vuln: any) {
   return createIntegrationEntity({
     entityData: {
@@ -117,7 +134,11 @@ export function createFindingEntity(vuln: any) {
         cvssScore: vuln.issueData.cvssScore,
         cwe: vuln.issueData.identifiers?.CWE,
         cve: vuln.issueData.identifiers?.CVE,
-        description: vuln.issueData.description,
+        description: buildDescription({
+          overview: vuln.issueData.title,
+          remediation: vuln.issueData.description,
+          references: vuln.issueData.url,
+        }),
         name: vuln.issueData.title,
         displayName: vuln.issueData.title,
         webLink: vuln.issueData.url,
