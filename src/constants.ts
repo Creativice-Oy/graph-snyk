@@ -89,7 +89,7 @@ export const Relationships = {
   },
   SERVICE_IDENTIFIED_FINDING: {
     _type: 'snyk_service_identified_finding',
-    sourceType: Entities.SNYK_ACCOUNT._type,
+    sourceType: Entities.SNYK_SERVICE._type,
     _class: RelationshipClass.IDENTIFIED,
     targetType: Entities.SNYK_FINDING._type,
   },

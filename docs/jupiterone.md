@@ -110,9 +110,8 @@ The following relationships are created:
 | `snyk_group`          | **HAS**               | `snyk_role`           |
 | `snyk_organization`   | **HAS**               | `snyk_project`        |
 | `snyk_organization`   | **HAS**               | `snyk_user`           |
-| `snyk_organization`   | **IDENTIFIED**        | `snyk_finding`        |
 | `snyk_project`        | **HAS**               | `snyk_finding`        |
-| `snyk_account`        | **IDENTIFIED**        | `snyk_finding`        |
+| `snyk_service`        | **IDENTIFIED**        | `snyk_finding`        |
 | `snyk_service`        | **SCANS**             | `snyk_project`        |
 | `snyk_user`           | **ASSIGNED**          | `snyk_role`           |
 

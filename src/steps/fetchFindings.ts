@@ -16,7 +16,6 @@ import {
   createFindingEntity,
   createFindingVulnerabilityRelationship,
   createFindingWeaknessRelationship,
-  createOrganizationFindingRelationship,
 } from '../converters';
 import { FindingEntity, Project } from '../types';
 
@@ -49,10 +48,6 @@ async function fetchFindings({
         `Can not get raw data for entity ${projectEntity._key}`;
         return;
       }
-
-      const organizationEntity = (await jobState.findEntity(
-        `snyk_org:${project?.orgId}`,
-      )) as Entity;
 
       if (!projectId || !projectName) return;
       const [, packageName] = projectName.split(':');
@@ -89,10 +84,6 @@ async function fetchFindings({
             createFindingWeaknessRelationship(finding, cweEntity),
           );
         }
-
-        await jobState.addRelationship(
-          createOrganizationFindingRelationship(organizationEntity, finding),
-        );
 
         await jobState.addEntity(finding);
 
@@ -137,7 +128,6 @@ export const steps: IntegrationStep<IntegrationConfig>[] = [
     relationships: [
       Relationships.FINDING_IS_CVE,
       Relationships.FINDING_EXPLOITS_CWE,
-      Relationships.ORGANIZATION_IDENTIFIED_FINDING,
       Relationships.PROJECT_FINDING,
       Relationships.SERVICE_IDENTIFIED_FINDING,
     ],
