@@ -1,11 +1,17 @@
 import {
   createDirectRelationship,
+  Entity,
   getRawData,
   IntegrationStep,
   IntegrationStepExecutionContext,
   RelationshipClass,
 } from '@jupiterone/integration-sdk-core';
-import { Entities, mappedRelationships, Relationships } from '../../constants';
+import {
+  Entities,
+  mappedRelationships,
+  Relationships,
+  SetDataKeys,
+} from '../../constants';
 import { APIClient } from '../../snyk/client';
 import { StepIds } from '../../constants';
 import {
@@ -21,6 +27,9 @@ async function fetchProjects({
   logger,
 }: IntegrationStepExecutionContext<IntegrationConfig>) {
   const apiClient = new APIClient(logger, instance.config);
+  const serviceEntity = (await jobState.getData(
+    SetDataKeys.SERVICE_ENTITY,
+  )) as Entity;
   let numProjectsCollected = 0;
 
   await jobState.iterateEntities(
@@ -62,6 +71,14 @@ async function fetchProjects({
           }),
         );
 
+        await jobState.addRelationship(
+          createDirectRelationship({
+            _class: RelationshipClass.SCANS,
+            from: serviceEntity,
+            to: projectEntity,
+          }),
+        );
+
         const projectRepoMappedRelationship = buildProjectRepoMappedRelationship(
           projectEntity,
         );
@@ -88,9 +105,12 @@ export const steps: IntegrationStep<IntegrationConfig>[] = [
     id: StepIds.FETCH_PROJECTS,
     name: 'Fetch Projects',
     entities: [Entities.PROJECT],
-    relationships: [Relationships.ORGANIZATION_PROJECT],
+    relationships: [
+      Relationships.ORGANIZATION_PROJECT,
+      Relationships.SERVICE_PROJECT,
+    ],
     mappedRelationships: [mappedRelationships.PROJECT_REPO],
-    dependsOn: [StepIds.FETCH_ORGANIZATIONS],
+    dependsOn: [StepIds.FETCH_ORGANIZATIONS, StepIds.FETCH_SERVICE],
     executionHandler: fetchProjects,
   },
 ];

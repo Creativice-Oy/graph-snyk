@@ -7,41 +7,38 @@ import {
 } from '@jupiterone/integration-sdk-core';
 import { IntegrationConfig } from '../../config';
 import { Entities, Relationships, SetDataKeys, StepIds } from '../../constants';
-import { createGroupEntity } from '../../converters';
-import { APIClient } from '../../snyk/client';
+import { createServiceEntity } from '../../converters';
+import { Service } from '../../types';
 
-async function fetchGroup({
-  instance,
+async function fetchService({
   jobState,
-  logger,
 }: IntegrationStepExecutionContext<IntegrationConfig>) {
-  const apiClient = new APIClient(logger, instance.config);
   const accountEntity = (await jobState.getData(
     SetDataKeys.ACCOUNT_ENTITY,
   )) as Entity;
+  const service: Service = {
+    name: 'Snyk Service',
+  };
 
-  const groupEntity = await jobState.addEntity(
-    createGroupEntity(await apiClient.getGroupDetails()),
-  );
-
-  await jobState.setData(SetDataKeys.GROUP_ENTITY, groupEntity);
+  const serviceEntity = await jobState.addEntity(createServiceEntity(service));
+  await jobState.setData(SetDataKeys.SERVICE_ENTITY, serviceEntity);
 
   await jobState.addRelationship(
     createDirectRelationship({
       _class: RelationshipClass.HAS,
       from: accountEntity,
-      to: groupEntity,
+      to: serviceEntity,
     }),
   );
 }
 
-export const groupStep: IntegrationStep<IntegrationConfig>[] = [
+export const serviceStep: IntegrationStep<IntegrationConfig>[] = [
   {
-    id: StepIds.FETCH_GROUP,
-    name: 'Fetch Group',
-    entities: [Entities.GROUP],
-    relationships: [Relationships.ACCOUNT_GROUP],
+    id: StepIds.FETCH_SERVICE,
+    name: 'Fetch Service',
+    entities: [Entities.SNYK_SERVICE],
+    relationships: [Relationships.ACCOUNT_SERVICE],
     dependsOn: [StepIds.FETCH_ACCOUNT],
-    executionHandler: fetchGroup,
+    executionHandler: fetchService,
   },
 ];

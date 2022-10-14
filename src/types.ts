@@ -176,3 +176,13 @@ export interface User {
   email: string;
   role: string;
 }
+
+export interface Account {
+  id: string;
+  name: string;
+  description: string | undefined;
+}
+
+export interface Service {
+  name: string;
+}

@@ -11,11 +11,15 @@ import { steps as userSteps } from './steps/users';
 import { groupStep } from './steps/group';
 import { organizationStep } from './steps/organization';
 import { roleStep } from './steps/roles';
+import { accountStep } from './steps/account';
+import { serviceStep } from './steps/service';
 
 export const invocationConfig: IntegrationInvocationConfig<IntegrationConfig> = {
   instanceConfigFields,
   validateInvocation,
   integrationSteps: [
+    ...accountStep,
+    ...serviceStep,
     ...projectSteps,
     ...findingSteps,
     ...userSteps,

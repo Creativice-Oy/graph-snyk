@@ -7,22 +7,45 @@ import {
 } from '@jupiterone/integration-sdk-core';
 import { Entities, Relationships } from './constants';
 
-import { CVEEntity, CWEEntity, Group, Organization, Role } from './types';
+import {
+  Account,
+  CVEEntity,
+  CWEEntity,
+  Group,
+  Organization,
+  Role,
+  Service,
+} from './types';
 
 const CVE_URL_BASE = 'https://nvd.nist.gov/vuln/detail/';
 
-export function createServiceEntity(orgId: string, orgName?: string): Entity {
+export function createAccountEntity(data: Account): Entity {
+  return createIntegrationEntity({
+    entityData: {
+      source: data,
+      assign: {
+        _key: `snyk:${data.id}`,
+        _type: Entities.SNYK_ACCOUNT._type,
+        _class: Entities.SNYK_ACCOUNT._class,
+        id: data.id,
+        description: data.description,
+        name: data.name,
+      },
+    },
+  });
+}
+
+export function createServiceEntity(service: Service): Entity {
   return createIntegrationEntity({
     entityData: {
       source: {},
       assign: {
-        _key: `snyk:${orgId}`,
-        _type: Entities.SNYK_ACCOUNT._type,
-        _class: Entities.SNYK_ACCOUNT._class,
-        id: orgId,
+        _key: `snyk_service`,
+        _type: Entities.SNYK_SERVICE._type,
+        _class: Entities.SNYK_SERVICE._class,
         category: ['security'],
-        name: orgName,
-        displayName: orgName || `snyk/${orgId}`,
+        name: service.name,
+        displayName: service.name,
         function: ['scanning'],
       },
     },

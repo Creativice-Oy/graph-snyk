@@ -6,10 +6,12 @@ import {
 export const SetDataKeys = {
   ACCOUNT_ENTITY: 'ACCOUNT_ENTITY',
   GROUP_ENTITY: 'GROUP_ENTITY',
+  SERVICE_ENTITY: 'SERVICE_ENTITY',
 };
 
 export const StepIds = {
   FETCH_ACCOUNT: 'fetch-account',
+  FETCH_SERVICE: 'fetch-service',
   FETCH_GROUP: 'fetch-group',
   FETCH_ORGANIZATIONS: 'fetch-organizations',
   FETCH_ROLES: 'fetch-roles',
@@ -32,8 +34,13 @@ export const Entities = {
   },
   SNYK_ACCOUNT: {
     _type: 'snyk_account',
-    _class: ['Service', 'Account'],
+    _class: ['Account'],
     resourceName: 'Snyk Account',
+  },
+  SNYK_SERVICE: {
+    _type: 'snyk_service',
+    _class: ['Service'],
+    resourceName: 'Snyk Service',
   },
   SNYK_FINDING: {
     _type: 'snyk_finding',
@@ -81,16 +88,28 @@ export const Relationships = {
     targetType: Entities.CWE._type,
   },
   SERVICE_IDENTIFIED_FINDING: {
-    _type: 'snyk_service_identified_snyk_finding',
+    _type: 'snyk_service_identified_finding',
     sourceType: Entities.SNYK_ACCOUNT._type,
     _class: RelationshipClass.IDENTIFIED,
     targetType: Entities.SNYK_FINDING._type,
   },
-  ACCOUNT_PROJECT: {
-    _type: 'snyk_account_has_project',
+  ACCOUNT_SERVICE: {
+    _type: 'snyk_account_has_service',
     sourceType: Entities.SNYK_ACCOUNT._type,
     _class: RelationshipClass.HAS,
+    targetType: Entities.SNYK_SERVICE._type,
+  },
+  SERVICE_PROJECT: {
+    _type: 'snyk_service_scans_project',
+    sourceType: Entities.SNYK_SERVICE._type,
+    _class: RelationshipClass.SCANS,
     targetType: Entities.PROJECT._type,
+  },
+  ACCOUNT_GROUP: {
+    _type: 'snyk_account_has_group',
+    sourceType: Entities.SNYK_ACCOUNT._type,
+    _class: RelationshipClass.HAS,
+    targetType: Entities.GROUP._type,
   },
   ACCOUNT_USER: {
     _type: 'snyk_account_has_user',

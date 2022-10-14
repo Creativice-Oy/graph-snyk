@@ -9,7 +9,7 @@ import {
 
 import { APIClient } from '../snyk/client';
 import { IntegrationConfig } from '../config';
-import { Entities, Relationships, StepIds } from '../constants';
+import { Entities, Relationships, SetDataKeys, StepIds } from '../constants';
 import {
   createCVEEntity,
   createCWEEntity,
@@ -26,6 +26,9 @@ async function fetchFindings({
   logger,
 }: IntegrationStepExecutionContext<IntegrationConfig>) {
   const apiClient = new APIClient(logger, instance.config);
+  const serviceEntity = (await jobState.getData(
+    SetDataKeys.SERVICE_ENTITY,
+  )) as Entity;
 
   let totalFindingsEncountered = 0;
   let totalCriticalFindingsEncountered = 0;
@@ -93,6 +96,14 @@ async function fetchFindings({
 
         await jobState.addEntity(finding);
 
+        await jobState.addRelationship(
+          createDirectRelationship({
+            _class: RelationshipClass.IDENTIFIED,
+            from: serviceEntity,
+            to: finding,
+          }),
+        );
+
         const projectHasFindingRelationship = createDirectRelationship({
           from: projectEntity,
           to: finding,
@@ -128,8 +139,13 @@ export const steps: IntegrationStep<IntegrationConfig>[] = [
       Relationships.FINDING_EXPLOITS_CWE,
       Relationships.ORGANIZATION_IDENTIFIED_FINDING,
       Relationships.PROJECT_FINDING,
+      Relationships.SERVICE_IDENTIFIED_FINDING,
     ],
-    dependsOn: [StepIds.FETCH_ORGANIZATIONS, StepIds.FETCH_PROJECTS],
+    dependsOn: [
+      StepIds.FETCH_ORGANIZATIONS,
+      StepIds.FETCH_PROJECTS,
+      StepIds.FETCH_SERVICE,
+    ],
     executionHandler: fetchFindings,
   },
 ];

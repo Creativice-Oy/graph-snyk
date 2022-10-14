@@ -8,6 +8,40 @@ import { IntegrationConfig } from '../../../src/config';
 export const invocationConfig: IntegrationSpecConfig<IntegrationConfig> = {
   integrationSteps: [
     {
+      id: 'fetch-account',
+      name: 'Fetch Account',
+      entities: [
+        {
+          resourceName: 'Snyk Account',
+          _type: 'snyk_account',
+          _class: ['Account'],
+        },
+      ],
+      relationships: [],
+      implemented: true,
+    },
+    {
+      id: 'fetch-service',
+      name: 'Fetch Service',
+      entities: [
+        {
+          resourceName: 'Snyk Service',
+          _type: 'snyk_service',
+          _class: ['Service'],
+        },
+      ],
+      relationships: [
+        {
+          _type: 'snyk_account_has_service',
+          sourceType: 'snyk_account',
+          _class: RelationshipClass.HAS,
+          targetType: 'snyk_service',
+        },
+      ],
+      dependsOn: ['fetch-account'],
+      implemented: true,
+    },
+    {
       /**
        * ENDPOINT: GET https://snyk.io/api/v1/org/{orgId}/projects
        * PATTERN: Fetch Entities
@@ -28,9 +62,15 @@ export const invocationConfig: IntegrationSpecConfig<IntegrationConfig> = {
           _class: RelationshipClass.HAS,
           targetType: 'snyk_project',
         },
+        {
+          _class: RelationshipClass.SCANS,
+          _type: 'snyk_service_scans_project',
+          sourceType: 'snyk_service',
+          targetType: 'snyk_project',
+        },
       ],
-      dependsOn: ['fetch-organization'],
-      implemented: false,
+      dependsOn: ['fetch-organizations', 'fetch-service'],
+      implemented: true,
     },
     {
       /**
@@ -92,7 +132,14 @@ export const invocationConfig: IntegrationSpecConfig<IntegrationConfig> = {
           _class: ['Group'],
         },
       ],
-      relationships: [],
+      relationships: [
+        {
+          _class: RelationshipClass.HAS,
+          _type: 'snyk_account_has_group',
+          sourceType: 'snyk_account',
+          targetType: 'snyk_group',
+        },
+      ],
       implemented: true,
     },
     {
