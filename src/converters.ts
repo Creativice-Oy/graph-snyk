@@ -17,6 +17,8 @@ import {
   Service,
 } from './types';
 
+import startCase from 'lodash.startcase';
+
 const CVE_URL_BASE = 'https://nvd.nist.gov/vuln/detail/';
 
 export function createAccountEntity(data: Account): Entity {
@@ -123,7 +125,7 @@ export function createFindingEntity(vuln: any) {
         numericSeverity: getNumericSeverityFromIssueSeverity(
           vuln.issueData.severity,
         ),
-        severity: vuln.issueData.severity, // Severity after policies have been applied
+        severity: startCase(vuln.issueData.severity), // Severity after policies have been applied
         originalSeverity: vuln.issueData.originalSeverity, // Severity as seen in snyk DB, before policies have been applied
         pkgName: vuln.pkgName,
         pkgVersions: vuln.pkgVersions,

@@ -38,6 +38,8 @@
   },
   "dependencies": {
     "@lifeomic/attempt": "^3.0.3",
+    "@types/lodash.startcase": "^4.4.7",
+    "lodash.startcase": "^4.4.0",
     "node-fetch": "^2"
   }
 }
