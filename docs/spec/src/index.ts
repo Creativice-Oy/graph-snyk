@@ -8,6 +8,10 @@ import { IntegrationConfig } from '../../../src/config';
 export const invocationConfig: IntegrationSpecConfig<IntegrationConfig> = {
   integrationSteps: [
     {
+      /**
+       * ENDPOINT: N/A
+       * PATTERN: Singleton
+       */
       id: 'fetch-account',
       name: 'Fetch Account',
       entities: [
@@ -21,6 +25,10 @@ export const invocationConfig: IntegrationSpecConfig<IntegrationConfig> = {
       implemented: true,
     },
     {
+      /**
+       * ENDPOINT: N/A
+       * PATTERN: Singleton
+       */
       id: 'fetch-service',
       name: 'Fetch Service',
       entities: [
