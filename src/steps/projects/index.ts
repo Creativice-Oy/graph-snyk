@@ -39,7 +39,8 @@ async function fetchProjects({
 
       if (!organization) {
         logger.warn(
-          `Can not get raw data for entity ${organizationEntity._key}`,
+          { _key: organizationEntity._key },
+          'Could not get raw data for organization entity',
         );
         return;
       }

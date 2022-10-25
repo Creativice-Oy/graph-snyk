@@ -45,7 +45,10 @@ async function fetchFindings({
 
       const project = getRawData<Project & { orgId: string }>(projectEntity);
       if (!project) {
-        `Can not get raw data for entity ${projectEntity._key}`;
+        logger.warn(
+          { _key: projectEntity._key },
+          'Could not get raw data for project entity',
+        );
         return;
       }
 

@@ -37,22 +37,33 @@ async function fetchRoles({
 
 async function buildUserRoleRelationship({
   jobState,
+  logger,
 }: IntegrationStepExecutionContext<IntegrationConfig>) {
   await jobState.iterateEntities(
     { _type: Entities.USER._type },
     async (userEntity) => {
       const user = getRawData<User>(userEntity);
+      if (!user) {
+        logger.warn(
+          { _key: userEntity._key },
+          'Could not get raw data for user entity',
+        );
+        return;
+      }
+
       const roleEntity = (await jobState.findEntity(
-        `snyk_role:${user?.role}`,
+        `snyk_role:${user.role}`,
       )) as Entity;
 
-      await jobState.addRelationship(
-        createDirectRelationship({
-          _class: RelationshipClass.ASSIGNED,
-          from: userEntity,
-          to: roleEntity,
-        }),
-      );
+      if (roleEntity) {
+        await jobState.addRelationship(
+          createDirectRelationship({
+            _class: RelationshipClass.ASSIGNED,
+            from: userEntity,
+            to: roleEntity,
+          }),
+        );
+      }
     },
   );
 }
