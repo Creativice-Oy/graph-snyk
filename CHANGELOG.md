@@ -8,6 +8,32 @@ and this project adheres to
 
 ## [Unreleased]
 
+### Added
+
+- Deconstructed description property of `snyk_finding` entity
+- New entities:
+
+  | Resources         | Entity `_type`      | Entity `_class` |
+  | ----------------- | ------------------- | --------------- |
+  | Snyk Group        | `snyk_group`        | `Group`         |
+  | Snyk Organization | `snyk_organization` | `Organization`  |
+  | Snyk Service      | `snyk_service`      | `Service`       |
+  | Snyk Role         | `snyk_role`         | `AccessRole`    |
+
+- New relationships:
+
+  | Source Entity `_type` | Relationship `_class` | Target Entity `_type` |
+  | --------------------- | --------------------- | --------------------- |
+  | `snyk_account`        | **HAS**               | `snyk_group`          |
+  | `snyk_account`        | **HAS**               | `snyk_service`        |
+  | `snyk_group`          | **HAS**               | `snyk_organization`   |
+  | `snyk_group`          | **HAS**               | `snyk_role`           |
+  | `snyk_organization`   | **HAS**               | `snyk_project`        |
+  | `snyk_organization`   | **HAS**               | `snyk_user`           |
+  | `snyk_service`        | **IDENTIFIED**        | `snyk_finding`        |
+  | `snyk_service`        | **SCANS**             | `snyk_project`        |
+  | `snyk_user`           | **ASSIGNED**          | `snyk_role`           |
+
 ## [2.4.1] - 2022-09-03
 
 ### Added
