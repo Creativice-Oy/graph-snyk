@@ -104,21 +104,24 @@ export function getNumericSeverityFromIssueSeverity(
   return numericSeverity === undefined ? 0 : numericSeverity;
 }
 
-export function buildDescription({
-  overview,
-  remediation,
-  references,
-}: {
-  overview: string;
-  remediation?: string;
-  references?: string;
-}): string {
-  const description = `Overview ${overview
-    .split('\n\nAn attacker')
-    .join('## Impact An attacker')} ${
-    remediation ? `## Remediation ${remediation}` : ''
-  } ${references ? `## References ${references}` : ''}`;
-  return description;
+export interface Desc {
+  description?: string;
+  Impact?: string;
+  Recommendations?: string;
+  References?: string;
+}
+
+export function deconstructDesc({ desc }: { desc?: string }): Desc | undefined {
+  return desc?.split('##').reduce((acc: Desc, curr, x) => {
+    if (curr.includes('\n\nAn attacker '))
+      acc.Impact = curr.split('\n\n')[1].trim();
+    else if (curr.includes('Remediation'))
+      acc.Recommendations = curr.split('Remediation')[1].trim();
+    else if (curr.includes('References'))
+      acc.References = curr.split('References')[1].trim();
+    else acc.description = curr;
+    return acc;
+  }, {});
 }
 
 export function createFindingEntity(vuln: any) {
@@ -134,11 +137,6 @@ export function createFindingEntity(vuln: any) {
         cvssScore: vuln.issueData.cvssScore,
         cwe: vuln.issueData.identifiers?.CWE,
         cve: vuln.issueData.identifiers?.CVE,
-        description: buildDescription({
-          overview: vuln.issueData.title,
-          remediation: vuln.issueData.description,
-          references: vuln.issueData.url,
-        }),
         name: vuln.issueData.title,
         displayName: vuln.issueData.title,
         webLink: vuln.issueData.url,
@@ -174,6 +172,7 @@ export function createFindingEntity(vuln: any) {
         violatedPolicyPublicId: vuln.issueData.violatedPolicyPublicId,
 
         path: vuln.issueData.path,
+        ...deconstructDesc({ desc: vuln.issueData.description }),
       },
     },
   });
