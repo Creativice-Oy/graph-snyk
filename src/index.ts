@@ -13,10 +13,12 @@ import { organizationStep } from './steps/organization';
 import { roleStep } from './steps/roles';
 import { accountStep } from './steps/account';
 import { serviceStep } from './steps/service';
+import getStepStartStates from './getStepStartStates';
 
 export const invocationConfig: IntegrationInvocationConfig<IntegrationConfig> = {
   instanceConfigFields,
   validateInvocation,
+  getStepStartStates,
   integrationSteps: [
     ...accountStep,
     ...serviceStep,

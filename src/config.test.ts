@@ -90,22 +90,4 @@ describe('validateInvocation', () => {
       expect(err instanceof IntegrationValidationError).toEqual(true);
     }
   });
-
-  test('should throw if `snykGroupId` missing from integration config', async () => {
-    expect.assertions(1);
-
-    try {
-      await validateInvocation(
-        createMockExecutionContext<IntegrationConfig>({
-          instanceConfig: {
-            snykOrgId: 'dummy-org-id',
-            snykApiKey: 'dummy-api-key',
-            snykGroupId: (undefined as unknown) as string,
-          },
-        }),
-      );
-    } catch (err) {
-      expect(err instanceof IntegrationValidationError).toEqual(true);
-    }
-  });
 });

@@ -6,7 +6,7 @@ test(
   createStepCollectionTest({
     directoryName: __dirname,
     recordingName: 'fetch-roles',
-    stepId: StepIds.FETCH_ROLES,
+    stepId: StepIds.FETCH_GROUP_ROLES,
   }),
 );
 
@@ -15,6 +15,6 @@ test(
   createStepCollectionTest({
     directoryName: __dirname,
     recordingName: 'build-user-role-relationship',
-    stepId: StepIds.BUILD_USER_ROLE,
+    stepId: StepIds.BUILD_USER_GROUP_ROLE,
   }),
 );

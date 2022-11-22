@@ -33,7 +33,7 @@ async function fetchProjects({
   let numProjectsCollected = 0;
 
   await jobState.iterateEntities(
-    { _type: Entities.ORGANIZATION._type },
+    { _type: Entities.SNYK_ORGANIZATION._type },
     async (organizationEntity) => {
       const organization = getRawData<Organization>(organizationEntity);
 
@@ -105,7 +105,7 @@ export const steps: IntegrationStep<IntegrationConfig>[] = [
   {
     id: StepIds.FETCH_PROJECTS,
     name: 'Fetch Projects',
-    entities: [Entities.PROJECT],
+    entities: [Entities.SNYK_PROJECT],
     relationships: [
       Relationships.ORGANIZATION_PROJECT,
       Relationships.SERVICE_PROJECT,

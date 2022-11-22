@@ -7,8 +7,8 @@ export function createUserEntity(user: User) {
     entityData: {
       source: user,
       assign: {
-        _class: Entities.USER._class,
-        _type: Entities.USER._type,
+        _class: Entities.SNYK_USER._class,
+        _type: Entities.SNYK_USER._type,
         _key: user.id as string,
         name: user.name,
         displayName: user.name,

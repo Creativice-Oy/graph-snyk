@@ -9,7 +9,13 @@ import {
 
 import { APIClient } from '../snyk/client';
 import { IntegrationConfig } from '../config';
-import { Entities, Relationships, SetDataKeys, StepIds } from '../constants';
+import {
+  Entities,
+  mappedRelationships,
+  Relationships,
+  SetDataKeys,
+  StepIds,
+} from '../constants';
 import {
   createCVEEntity,
   createCWEEntity,
@@ -37,7 +43,7 @@ async function fetchFindings({
 
   await jobState.iterateEntities(
     {
-      _type: Entities.PROJECT._type,
+      _type: Entities.SNYK_PROJECT._type,
     },
     async (projectEntity) => {
       const projectId = projectEntity.id as string | undefined;
@@ -127,12 +133,14 @@ export const steps: IntegrationStep<IntegrationConfig>[] = [
   {
     id: StepIds.FETCH_FINDINGS,
     name: 'Fetch findings',
-    entities: [Entities.CVE, Entities.CWE, Entities.SNYK_FINDING],
+    entities: [Entities.SNYK_FINDING],
     relationships: [
-      Relationships.FINDING_IS_CVE,
-      Relationships.FINDING_EXPLOITS_CWE,
       Relationships.PROJECT_FINDING,
       Relationships.SERVICE_IDENTIFIED_FINDING,
+    ],
+    mappedRelationships: [
+      mappedRelationships.FINDING_IS_CVE,
+      mappedRelationships.FINDING_EXPLOITS_CWE,
     ],
     dependsOn: [
       StepIds.FETCH_ORGANIZATIONS,

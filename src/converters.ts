@@ -5,7 +5,7 @@ import {
   Relationship,
   RelationshipDirection,
 } from '@jupiterone/integration-sdk-core';
-import { Entities, Relationships } from './constants';
+import { Entities, mappedRelationships, Relationships } from './constants';
 
 import {
   Account,
@@ -18,6 +18,8 @@ import {
 } from './types';
 
 import startCase from 'lodash.startcase';
+import { deconstructDesc } from './util/deconstructDesc';
+import { generateRoleKey } from './util/generateRoleKey';
 
 const CVE_URL_BASE = 'https://nvd.nist.gov/vuln/detail/';
 
@@ -40,7 +42,7 @@ export function createAccountEntity(data: Account): Entity {
 export function createServiceEntity(service: Service): Entity {
   return createIntegrationEntity({
     entityData: {
-      source: {},
+      source: service,
       assign: {
         _key: `snyk_service`,
         _type: Entities.SNYK_SERVICE._type,
@@ -60,8 +62,8 @@ export function createGroupEntity(group: Group): Entity {
       source: group,
       assign: {
         _key: `snyk_group:${group.id}`,
-        _type: Entities.GROUP._type,
-        _class: Entities.GROUP._class,
+        _type: Entities.SNYK_GROUP._type,
+        _class: Entities.SNYK_GROUP._class,
         id: group.id,
         name: group.name,
         webLink: group.url,
@@ -76,8 +78,8 @@ export function createOrganizationEntity(org: Organization): Entity {
       source: org,
       assign: {
         _key: `snyk_org:${org.id}`,
-        _type: Entities.ORGANIZATION._type,
-        _class: Entities.ORGANIZATION._class,
+        _type: Entities.SNYK_ORGANIZATION._type,
+        _class: Entities.SNYK_ORGANIZATION._class,
         id: org.id,
         name: org.name,
         webLink: org.url,
@@ -102,26 +104,6 @@ export function getNumericSeverityFromIssueSeverity(
 
   const numericSeverity = SEVERITY_TO_NUMERIC_SEVERITY_MAP.get(issueSeverity);
   return numericSeverity === undefined ? 0 : numericSeverity;
-}
-
-export interface Desc {
-  description?: string;
-  Impact?: string;
-  Recommendations?: string;
-  References?: string;
-}
-
-export function deconstructDesc({ desc }: { desc?: string }): Desc | undefined {
-  return desc?.split('##').reduce((acc: Desc, curr, x) => {
-    if (curr.includes('\n\nAn attacker '))
-      acc.Impact = curr.split('\n\n')[1].trim();
-    else if (curr.includes('Remediation'))
-      acc.Recommendations = curr.split('Remediation')[1].trim();
-    else if (curr.includes('References'))
-      acc.References = curr.split('References')[1].trim();
-    else acc.description = curr;
-    return acc;
-  }, {});
 }
 
 export function createFindingEntity(vuln: any) {
@@ -183,9 +165,9 @@ export function createRoleEntity(role: Role): Entity {
     entityData: {
       source: role,
       assign: {
-        _key: `snyk_role:${role.name.split(' ')[1].toLowerCase()}`,
-        _type: Entities.ROLE._type,
-        _class: Entities.ROLE._class,
+        _key: generateRoleKey(role.name),
+        _type: Entities.SNYK_ROLE._type,
+        _class: Entities.SNYK_ROLE._class,
         name: role.name,
         description: role.description,
         publicId: role.publicId,
@@ -253,7 +235,7 @@ export function createFindingVulnerabilityRelationship(
   return {
     _key: `${finding._key}|is|${cve._key}`,
     _class: 'IS',
-    _type: Relationships.FINDING_IS_CVE._type,
+    _type: mappedRelationships.FINDING_IS_CVE._type,
     _mapping: {
       sourceEntityKey: finding._key,
       relationshipDirection: RelationshipDirection.FORWARD,
@@ -271,7 +253,7 @@ export function createFindingWeaknessRelationship(
   return {
     _key: `${finding._key}|is|${cwe._key}`,
     _class: 'EXPLOITS',
-    _type: Relationships.FINDING_EXPLOITS_CWE._type,
+    _type: mappedRelationships.FINDING_EXPLOITS_CWE._type,
     _mapping: {
       sourceEntityKey: finding._key,
       relationshipDirection: RelationshipDirection.FORWARD,

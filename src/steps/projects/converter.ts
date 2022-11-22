@@ -23,8 +23,8 @@ export function createProjectEntity(orgId: string, project: any) {
     entityData: {
       source: { ...project, orgId },
       assign: {
-        _class: Entities.PROJECT._class,
-        _type: Entities.PROJECT._type,
+        _class: Entities.SNYK_PROJECT._class,
+        _type: Entities.SNYK_PROJECT._type,
         _key: project.id as string,
 
         name: project.name,

@@ -20,7 +20,7 @@ async function fetchUsers({
   const apiClient = new APIClient(logger, instance.config);
 
   await jobState.iterateEntities(
-    { _type: Entities.ORGANIZATION._type },
+    { _type: Entities.SNYK_ORGANIZATION._type },
     async (organizationEntity) => {
       const organization = getRawData<Organization>(organizationEntity);
 
@@ -51,7 +51,7 @@ export const steps: IntegrationStep<IntegrationConfig>[] = [
   {
     id: StepIds.FETCH_USERS,
     name: 'Fetch Organization Members',
-    entities: [Entities.USER],
+    entities: [Entities.SNYK_USER],
     relationships: [Relationships.ORGANIZATION_USER],
     dependsOn: [StepIds.FETCH_ORGANIZATIONS],
     executionHandler: fetchUsers,

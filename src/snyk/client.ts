@@ -73,7 +73,7 @@ export class APIClient {
   }
 
   getCurrentUserDetails() {
-    return this.snykRequest({
+    return this.snykRequestWithRetry({
       method: 'GET',
       uri: `user/me`,
     });
@@ -224,6 +224,28 @@ export class APIClient {
     return result;
   }
 
+  async snykRequestWithRetry({
+    uri,
+    method,
+    body,
+  }: {
+    uri: string;
+    method: string;
+    body?: BodyInit;
+  }) {
+    return retry(() => this.snykRequest({ uri, method, body }), {
+      delay: 5000,
+      factor: 1.2,
+      maxAttempts: this.retries,
+      handleError(err, context) {
+        const code = err.statusCode;
+        if (code < 500 && code !== 429) {
+          context.abort();
+        }
+      },
+    });
+  }
+
   /**
    * "List All The Projects in the Organization"
    * @param {string} orgId - Organization ID
@@ -231,25 +253,10 @@ export class APIClient {
    * @returns {Object} projects - object representing the list of projects
    */
   async listAllProjects(orgId) {
-    return retry(
-      async () => {
-        return this.snykRequest({
-          method: 'GET',
-          uri: `org/${orgId}/projects`,
-        });
-      },
-      {
-        delay: 5000,
-        factor: 1.2,
-        maxAttempts: this.retries,
-        handleError(err, context) {
-          const code = err.statusCode;
-          if (code < 500 && code !== 429) {
-            context.abort();
-          }
-        },
-      },
-    );
+    return this.snykRequestWithRetry({
+      method: 'GET',
+      uri: `org/${orgId}/projects`,
+    });
   }
 
   /**
@@ -260,110 +267,50 @@ export class APIClient {
    * @returns {Object} object representing the list of issues
    */
   async listAggregatedIssues(orgId, projectId) {
-    return retry(
-      async () => {
-        return this.snykRequest({
-          method: 'POST',
-          uri: `/org/${orgId}/project/${projectId}/aggregated-issues`,
-        });
-      },
-      {
-        delay: 5000,
-        factor: 1.2,
-        maxAttempts: this.retries,
-        handleError(err, context) {
-          const code = err.statusCode;
-          if (code < 500 && code !== 429) {
-            context.abort();
-          }
-        },
-      },
-    );
+    return this.snykRequestWithRetry({
+      method: 'POST',
+      uri: `/org/${orgId}/project/${projectId}/aggregated-issues`,
+    });
   }
 
   async iterateUsers(
     organizationId: string,
     iteratee: (user: any) => Promise<void>,
   ) {
-    return retry(
-      async () => {
-        const users = await this.snykRequest({
-          method: 'GET',
-          uri: `org/${organizationId}/members?includeGroupAdmins=true`,
-        });
+    const users = await this.snykRequestWithRetry({
+      method: 'GET',
+      uri: `org/${organizationId}/members?includeGroupAdmins=true`,
+    });
 
-        for (const user of users) {
-          await iteratee(user);
-        }
-      },
-      {
-        delay: 5000,
-        factor: 1.2,
-        maxAttempts: this.retries,
-        handleError(err, context) {
-          const code = err.statusCode;
-          if (code < 500 && code !== 429) {
-            context.abort();
-          }
-        },
-      },
-    );
+    for (const user of users) {
+      await iteratee(user);
+    }
   }
 
   async iterateOrganizations(iteratee: ResourceIteratee<Organization>) {
-    return retry(
-      async () => {
-        const response = await this.snykRequest({
-          method: 'GET',
-          uri: `group/${this.config.snykGroupId}/orgs`,
-        });
+    const response = await this.snykRequestWithRetry({
+      method: 'GET',
+      uri: `group/${this.config.snykGroupId}/orgs`,
+    });
 
-        for (const org of response.orgs) {
-          await iteratee(org);
-        }
-      },
-      {
-        delay: 5000,
-        factor: 1.2,
-        maxAttempts: this.retries,
-        handleError(err, context) {
-          const code = err.statusCode;
-          if (code < 500 && code !== 429) {
-            context.abort();
-          }
-        },
-      },
-    );
+    for (const org of response.orgs) {
+      await iteratee(org);
+    }
   }
 
   async iterateRoles(iteratee: ResourceIteratee<Role>) {
-    return retry(
-      async () => {
-        const roles = await this.snykRequest({
-          method: 'GET',
-          uri: `group/${this.config.snykGroupId}/roles`,
-        });
+    const roles = await this.snykRequestWithRetry({
+      method: 'GET',
+      uri: `group/${this.config.snykGroupId}/roles`,
+    });
 
-        for (const role of roles) {
-          await iteratee(role);
-        }
-      },
-      {
-        delay: 5000,
-        factor: 1.2,
-        maxAttempts: this.retries,
-        handleError(err, context) {
-          const code = err.statusCode;
-          if (code < 500 && code !== 429) {
-            context.abort();
-          }
-        },
-      },
-    );
+    for (const role of roles) {
+      await iteratee(role);
+    }
   }
 
   async getGroupDetails() {
-    const { orgs, ...rest } = await this.snykRequest({
+    const { orgs, ...rest } = await this.snykRequestWithRetry({
       method: 'GET',
       uri: `group/${this.config.snykGroupId}/orgs`,
     });

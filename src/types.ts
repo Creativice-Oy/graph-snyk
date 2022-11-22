@@ -115,9 +115,9 @@ export interface Group {
 export interface Organization {
   id: string;
   name: string;
-  slug: string;
-  url: string;
-  created: string;
+  slug?: string;
+  url?: string;
+  created?: string;
 }
 
 export interface Project {
@@ -163,10 +163,10 @@ export interface Project {
 
 export interface Role {
   name: string;
-  description: string;
-  publicId: string;
-  created: string;
-  modified: string;
+  description?: string;
+  publicId?: string;
+  created?: string;
+  modified?: string;
 }
 
 export interface User {

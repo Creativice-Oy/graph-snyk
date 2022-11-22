@@ -164,14 +164,7 @@ export const invocationConfig: IntegrationSpecConfig<IntegrationConfig> = {
           _class: ['Organization'],
         },
       ],
-      relationships: [
-        {
-          _class: RelationshipClass.HAS,
-          _type: 'snyk_group_has_organization',
-          sourceType: 'snyk_group',
-          targetType: 'snyk_organization',
-        },
-      ],
+      relationships: [],
       dependsOn: ['fetch-group'],
       implemented: true,
     },
@@ -181,7 +174,7 @@ export const invocationConfig: IntegrationSpecConfig<IntegrationConfig> = {
        * PATTERN: Fetch Child Entities
        */
       id: 'fetch-roles',
-      name: 'Fetch Roles',
+      name: 'Fetch Group Roles',
       entities: [
         {
           resourceName: 'Snyk Role',
@@ -207,7 +200,13 @@ export const invocationConfig: IntegrationSpecConfig<IntegrationConfig> = {
        */
       id: 'build-user-role-relationship',
       name: 'Build User and Role Relationship',
-      entities: [],
+      entities: [
+        {
+          _class: ['AccessRole'],
+          _type: 'snyk_role',
+          resourceName: 'Snyk Role',
+        },
+      ],
       relationships: [
         {
           _class: RelationshipClass.ASSIGNED,
@@ -215,8 +214,14 @@ export const invocationConfig: IntegrationSpecConfig<IntegrationConfig> = {
           sourceType: 'snyk_user',
           targetType: 'snyk_role',
         },
+        {
+          _class: RelationshipClass.HAS,
+          _type: 'snyk_organization_has_role',
+          sourceType: 'snyk_organization',
+          targetType: 'snyk_role',
+        },
       ],
-      dependsOn: ['fetch-roles', 'fetch-users'],
+      dependsOn: ['fetch-users', 'fetch-organizations'],
       implemented: true,
     },
     {

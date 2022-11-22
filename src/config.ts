@@ -14,7 +14,7 @@ import {
 interface IntegrationConfig extends IntegrationInstanceConfig {
   snykOrgId: string;
   snykApiKey: string;
-  snykGroupId: string;
+  snykGroupId?: string;
 }
 
 const instanceConfigFields: IntegrationInstanceConfigFieldMap<IntegrationConfig> = {
@@ -35,9 +35,9 @@ export default async function validateInvocation(
 ) {
   const { config } = context.instance;
 
-  if (!config?.snykOrgId || !config?.snykApiKey || !config?.snykGroupId) {
+  if (!config?.snykOrgId || !config?.snykApiKey) {
     throw new IntegrationValidationError(
-      'Config requires all of {snykOrgId, snykApiKey, snykGroupId}',
+      'Config requires all of {snykOrgId, snykApiKey}',
     );
   }
 
