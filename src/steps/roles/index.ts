@@ -8,7 +8,7 @@ import {
 } from '@jupiterone/integration-sdk-core';
 import { IntegrationConfig } from '../../config';
 import { Entities, Relationships, SetDataKeys, StepIds } from '../../constants';
-import { createRoleEntity } from '../../converters';
+import { createRoleEntity } from './converters';
 import { APIClient } from '../../snyk/client';
 import { User } from '../../types';
 

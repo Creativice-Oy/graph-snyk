@@ -1,5 +1,5 @@
-import { createStepCollectionTest } from '../../test/recording';
-import { StepIds } from '../constants';
+import { createStepCollectionTest } from '../../../test/recording';
+import { StepIds } from '../../constants';
 
 test(
   'fetch-findings',

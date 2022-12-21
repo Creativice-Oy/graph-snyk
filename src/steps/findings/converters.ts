@@ -5,90 +5,14 @@ import {
   Relationship,
   RelationshipDirection,
 } from '@jupiterone/integration-sdk-core';
-import { Entities, mappedRelationships, Relationships } from './constants';
+import { Entities, mappedRelationships, Relationships } from '../../constants';
 
-import {
-  Account,
-  CVEEntity,
-  CWEEntity,
-  Group,
-  Organization,
-  Role,
-  Service,
-} from './types';
+import { CVEEntity, CWEEntity } from '../../types';
 
 import startCase from 'lodash.startcase';
-import { deconstructDesc } from './util/deconstructDesc';
-import { generateRoleKey } from './util/generateRoleKey';
+import { deconstructDesc } from '../../util/deconstructDesc';
 
 const CVE_URL_BASE = 'https://nvd.nist.gov/vuln/detail/';
-
-export function createAccountEntity(data: Account): Entity {
-  return createIntegrationEntity({
-    entityData: {
-      source: data,
-      assign: {
-        _key: `snyk:${data.id}`,
-        _type: Entities.SNYK_ACCOUNT._type,
-        _class: Entities.SNYK_ACCOUNT._class,
-        id: data.id,
-        description: data.description,
-        name: data.name,
-      },
-    },
-  });
-}
-
-export function createServiceEntity(service: Service): Entity {
-  return createIntegrationEntity({
-    entityData: {
-      source: service,
-      assign: {
-        _key: `snyk_service`,
-        _type: Entities.SNYK_SERVICE._type,
-        _class: Entities.SNYK_SERVICE._class,
-        category: ['security'],
-        name: service.name,
-        displayName: service.name,
-        function: ['scanning'],
-      },
-    },
-  });
-}
-
-export function createGroupEntity(group: Group): Entity {
-  return createIntegrationEntity({
-    entityData: {
-      source: group,
-      assign: {
-        _key: `snyk_group:${group.id}`,
-        _type: Entities.SNYK_GROUP._type,
-        _class: Entities.SNYK_GROUP._class,
-        id: group.id,
-        name: group.name,
-        webLink: group.url,
-      },
-    },
-  });
-}
-
-export function createOrganizationEntity(org: Organization): Entity {
-  return createIntegrationEntity({
-    entityData: {
-      source: org,
-      assign: {
-        _key: `snyk_org:${org.id}`,
-        _type: Entities.SNYK_ORGANIZATION._type,
-        _class: Entities.SNYK_ORGANIZATION._class,
-        id: org.id,
-        name: org.name,
-        webLink: org.url,
-        displayName: org.slug,
-        createdOn: parseTimePropertyValue(org.created),
-      },
-    },
-  });
-}
 
 const SEVERITY_TO_NUMERIC_SEVERITY_MAP = new Map<string, number>([
   ['low', 2],
@@ -106,7 +30,11 @@ export function getNumericSeverityFromIssueSeverity(
   return numericSeverity === undefined ? 0 : numericSeverity;
 }
 
-export function createFindingEntity(vuln: any) {
+export function createFindingEntity(vuln: any, projectEntity: Entity) {
+  const targets = projectEntity.repoName
+    ? [projectEntity.repoName as string]
+    : [];
+
   return createIntegrationEntity({
     entityData: {
       source: vuln,
@@ -141,7 +69,7 @@ export function createFindingEntity(vuln: any) {
         publicationTime: parseTimePropertyValue(vuln.issueData.publicationTime),
         disclosureTime: parseTimePropertyValue(vuln.issueData.disclosureTime),
         open: true,
-        targets: [],
+        targets,
         issueType: vuln.issueType,
         identifiedInFile: '',
 
@@ -155,24 +83,6 @@ export function createFindingEntity(vuln: any) {
 
         path: vuln.issueData.path,
         ...deconstructDesc({ desc: vuln.issueData.description }),
-      },
-    },
-  });
-}
-
-export function createRoleEntity(role: Role): Entity {
-  return createIntegrationEntity({
-    entityData: {
-      source: role,
-      assign: {
-        _key: generateRoleKey(role.name),
-        _type: Entities.SNYK_ROLE._type,
-        _class: Entities.SNYK_ROLE._class,
-        name: role.name,
-        description: role.description,
-        publicId: role.publicId,
-        createdOn: parseTimePropertyValue(role.created),
-        modified: parseTimePropertyValue(role.modified),
       },
     },
   });

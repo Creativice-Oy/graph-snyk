@@ -7,7 +7,7 @@ import {
 } from '@jupiterone/integration-sdk-core';
 import { IntegrationConfig } from '../../config';
 import { Entities, Relationships, SetDataKeys, StepIds } from '../../constants';
-import { createGroupEntity } from '../../converters';
+import { createGroupEntity } from './converters';
 import { APIClient } from '../../snyk/client';
 
 async function fetchGroup({

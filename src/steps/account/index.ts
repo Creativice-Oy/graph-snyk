@@ -4,7 +4,7 @@ import {
 } from '@jupiterone/integration-sdk-core';
 import { IntegrationConfig } from '../../config';
 import { Entities, SetDataKeys, StepIds } from '../../constants';
-import { createAccountEntity } from '../../converters';
+import { createAccountEntity } from './converters';
 import { Account } from '../../types';
 
 async function fetchAccount({

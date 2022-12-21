@@ -34,6 +34,12 @@ and this project adheres to
   | `snyk_service`        | **SCANS**             | `snyk_project`        |
   | `snyk_user`           | **ASSIGNED**          | `snyk_role`           |
 
+## [2.4.2] - 2022-11-30
+
+### Changed
+
+- `snyk_finding` now includes target property from `snyk_project` **repoName**.
+
 ## [2.4.1] - 2022-09-03
 
 ### Added
